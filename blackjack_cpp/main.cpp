@@ -1,5 +1,5 @@
-//SuperJacky6 @ ByteDance Tiktok Algorithm Dep.
-//Under GPT-v3 License Redesigned and refined.
+//SuperJacky6 @ ByteDance Tiktok Algorithm Department
+//Under GNU-v3 License Redesigned and refined.
 
 //Contact : adding2003@gmail.com
 
@@ -15,37 +15,32 @@ using namespace std;
 
 //游戏内容设定函数声明
 void replay(char &ans);     //allows replay of game
-void setting(int chips);	//jump into settings menu.
+void setting(int chips, int &money);	//jump into settings menu.
 //游戏主要内容操作函数设定
 void hit(int &total, int &flag_legal, int &playerturns);      //take another card
 int cpu_hit(int &total, int &cputurns);
 void deal(int &player, int &cpu, int &playerturns, int &cputurns); //deals hand
+void admin_deal(int &player, int &cpu, int &playerturns, int &cputurns); //deals hand for admin mode
 void BET(int &bet, int &money); //takes bet
 //游戏判断与打印函数设定
 int judging21(int a);
-void print(int wins, int lose, int draw, int money); //prints final score
+void print(int wins, int lose, int draw, int money , int default_money); //prints final score
 void results(int player, int cpu, int bet, int &money, int &draw, int &win, int &lose); //finds winner
 //游戏数学与计算机机制函数声明
 int random(long hi, long lo); //random function using time stamp.
 void wait(int milli);
 void pause();
-
+void game_rules();
+void game_author();
 
 /*
-未完成任务列表：
+未完成任务列表：ssd
 
-1.H键超级管理员设定。（菜单分类化与模块化调用(或许程序拆分？)）
-	菜单问题选择拆分程序。
-	游戏内容问题仿照cpu_hit与hit函数分别设定。
-2.大于10的点数改为0.5判断。
+1.大于10的点数改为0.5判断。
 	全程序关于player和cpu的浮点属性修改。
-3.要牌后的赔率multiplier的设定。
+2.要牌后的赔率multiplier的设定。
 	暂未实现，需要更新筹码溢出的判断与加减方式。
-4.模拟图形化Graphic User Interface的实现。
-5.规则阐述与作者声明函数的实现。
-	void function game_rules();
-	void function game_author();
-6.相同数字手牌的Split操作与函数实现。（非必须）
+
 
 
 已完成任务列表:
@@ -55,6 +50,11 @@ void pause();
 3.CPU方永远不会爆庄。(2.3.3-3)
 4.筹码的数量判断设定与报错。
 5.中文本地化21点程序内容。
+6.H键超级管理员设定。
+	菜单问题选择拆分程序。已完成。
+	游戏内容问题仿照cpu_hit与hit函数分别设定。已完成。
+7.规则阐述与作者声明函数的实现。
+
 
 已知BUG列表：
 
@@ -72,73 +72,174 @@ void pause();
 
 int main() {
 
-	//Initialize variants
-	int player = 0, cpu = 0, win = 0, lose = 0, draw = 0, playerturns = 0, cputurns = 0, money = 0, bet;
-	int flag_legal = 1, flag = 0;
+	//Initializing...
+	int player = 0, cpu = 0, win = 0, lose = 0, draw = 0, playerturns = 0, cputurns = 0, money = 100 ,default_money = 100, bet;
+	int flag_legal = 1, flag = 0, admin_mode = 0;
 	char ans;
+	string password = "1";
+	string input_pwd = "";
 
-	//system("cls");
-	cout << "BLACKJACK GAME" << endl;
-	cout << "是否开始游戏？(Y/n)";
-
-	cin >> ans;
-
-	if ((ans == 'y') || (ans == 'Y')) { //Checks to see if they want to play...
-		system("cls");
-		cout << "您初始拥有的筹码为 $ " << money << endl; //starts u with money
-		money = 1000;
-	} else {
-		return (0);
-	}
-
-
-	do {
-		system("cls");
-		if (money <= 0) {
-			cout << "您破产了！" << endl;
-			return (0);
-			break;
-		}
-		BET(bet, money);
-		deal(player, cpu, playerturns, cputurns);
+	int choice;
 
 		do {
-			cout << "您是否要继续拿牌？(H/s)";
-			cin >> ans;
-			if ((ans == 'h') || (ans == 'H')) {
-				playerturns++;
-				if (playerturns > 5) {
-					cout << "操作非法！" << endl;;
+			// 显示菜单选项
+			system("cls");
+			std::cout << "欢迎来到21点游戏！" << std::endl;
+			std::cout << "1. 开始游戏" << std::endl;
+			std::cout << "2. 游戏规则" << std::endl;
+			std::cout << "3. 游戏设置" << std::endl;
+			std::cout << "4. 退出" << std::endl;
+			std::cout << "请输入您的选择: ";
+			std::cin >> choice;
+
+
+			// 处理用户选择
+			switch (choice) {
+			case 1:
+				system("cls");
+				ans = 'y';
+				cout << "欢迎来到21点游戏！" << endl;
+				if ((ans == 'y') || (ans == 'Y')) {
+					cout << "您初始拥有的筹码为 $ " << money << endl;
 				}
-			}
-			if ((playerturns < 6) && (ans == 'h' ) ) {
-				hit(player, flag_legal, playerturns);
-			}
-		} while ((ans == 'h') || (ans == 'H'));
+				else {
+					return 0;
+				}
 
-		for (; (cpu < 16) && (cputurns < 6); cputurns++) {
-			cout << endl;
-			cout << "CPU正在进行思考" << endl;
-			wait(600);
-			cpu_hit(cpu, cputurns);
-			//calls hit function
-		}
-		cout << endl;
-		cout << "CPU的总数:" << cpu << endl;
-		cout << "您的总数:" << player << endl;
-		cout << endl;
-		results(player, cpu, bet, money, draw, win, lose);
-		replay(ans);
-	} while ((ans == 'y') || (ans == 'Y'));
+				do {
+					system("cls");
+					if (money <= 0) {
+						cout << "您破产了！" << endl;
+						return (0);
+						break;
+					}
+					BET(bet, money);
 
-	print(win, lose, draw, money);
-	return (0);
+					if (admin_mode == 0) {
+						deal(player, cpu, playerturns, cputurns);
+					} else {
+						admin_deal(player, cpu, playerturns, cputurns);
+					}
+
+					do {
+						cout << "您是否要继续拿牌？(H以继续，s则停止)";
+						cin >> ans;
+						if ((ans == 'h') || (ans == 'H')) {
+							playerturns++;
+							if (playerturns > 5) {
+								cout << "操作非法！" << endl;;
+							}
+						}
+						if ((playerturns < 6) && (ans == 'h')) {
+							hit(player, flag_legal, playerturns);
+						}
+					} while ((ans == 'h') || (ans == 'H'));
+
+					for (; (cpu < 16) && (cputurns < 6); cputurns++) {
+						cout << endl;
+						cout << "CPU正在进行思考" << endl;
+						wait(600);
+						cpu_hit(cpu, cputurns);
+					}
+					cout << endl;
+					cout << "CPU的总数:" << cpu << endl;
+					cout << "您的总数:" << player << endl;
+					cout << endl;
+					results(player, cpu, bet, money, draw, win, lose);
+					replay(ans);
+				} while ((ans == 'y') || (ans == 'Y'));
+
+				print(win, lose, draw, money, default_money);
+				return (0);
+				break;
+
+			case 2:
+				std::cout << "游戏介绍" << std::endl;
+				game_rules();
+				break;
+			
+			case 3:
+				std::cout << "游戏设置" << std::endl;
+				cout << "请输入密码：";
+				cin >> input_pwd;
+
+				if (input_pwd == password) {
+					cout << "您已获得权限，进入设置菜单。" << endl;
+					admin_mode = 1;
+					int choice3, def_money;
+					do {
+						std::cout << "1. 初始筹码设置" << std::endl;
+						std::cout << "2. 游戏作者" << std::endl;
+						std::cout << "3. 回到主菜单" << std::endl;
+						std::cout << "请输入您的选择: ";
+						std::cin >> choice3;
+
+						switch (choice3) {
+						case 1:
+							cout << "请输入初始筹码数目：";
+							cin >> def_money;
+							cout << "您设置的初始筹码为 $" << def_money << endl;
+							setting(def_money, money);
+							default_money = def_money;
+							break;
+
+						case 2:
+							std::cout << "游戏作者" << std::endl;
+							game_author();
+							break;
+
+						case 3:
+							break;
+
+						default:
+							std::cout << "无效的选择！请键入有效选项。" << std::endl;
+							break;
+						}
+
+					} while (choice != 3);
+				}
+				else {
+					cout << "Password is incorrect. Access denied." << endl;
+				}
+				
+			
+				break;
+
+			case 4:
+				std::cout << "退出游戏。再见！" << std::endl;
+				break;
+
+			default:
+				std::cout << "无效的选择！请键入有效选项。" << std::endl;
+				break;
+			}
+
+		} while (choice != 4);
+
+
+	
 }
 
-/* void setting(int chips) {
+void game_rules() {
+	cout << "1. 牌面大小为1-13，11-13被视为0.5分。" << endl;
+	cout << "2. 牌面大小相同的牌，视为同一张牌。" << endl;
+	cout << "3. 游戏开始时，玩家会收到两张牌，出现爆牌（手中牌的总点数超过21点）即输掉比赛。" << endl;
+	cout << "4. 目标是使您手中的卡牌总点数尽可能接近 21 点，但不超过 21 点。" << endl;
+	cout << "5. 玩家可以选择“Hit”来抽取额外的牌，以尽可能接近21点。" << endl;
+	cout << "6. 玩家还可以选择“Stand”（不再抽取额外的牌），并将轮到庄家表现。" << endl;
+	cout << "7. 如果玩家和庄家的点数相同，则比赛平局。" << endl;		
+	pause();
+}
+
+void game_author() {
+	cout << "作者：SuperJacky6" << endl;
+	cout << "联系方式：Adding2003@gmail.com" << endl;
+}
+
+ void setting(int chips,int &money) {
 	money = chips;
 	cout << "New chips setting applied. New chips" << chips << endl;
-}*/
+}
 
 int random(long hi, long lo) {
 	time_t t;
@@ -147,7 +248,6 @@ int random(long hi, long lo) {
 	ran = rand() % (hi - (lo - 1)) + lo;
 	return (ran);
 }
-
 
 void BET(int &bet, int &money) {
 	cout << "您拥有筹码 $" << money << endl;
@@ -163,6 +263,49 @@ void BET(int &bet, int &money) {
 	}
 }
 
+void admin_deal(int& player, int& cpu, int& playerturns, int& cputurns) {
+	int playercard1, playercard2, cpucard1, cpucard2;
+	cout << "轻触回车键开始发牌！" << endl;
+	pause();
+
+	playerturns = 2;
+	cputurns = 2;
+
+	playercard1 = random(13, 1);
+	wait(250);
+	playercard2 = random(10, 1);
+	wait(150);
+	cpucard1 = random(13, 1);
+	wait(350);
+	cpucard2 = random(10, 1);
+	//实现伪随机数的random函数保证单次调用的差异性
+	if (playercard1 >= 10) {
+		playercard1 = 10;
+	}
+
+	if (playercard2 >= 10) {
+		playercard2 = 10;
+	}
+
+	if (cpucard1 >= 10) {
+		cpucard1 = 10;
+	}
+
+	if (cpucard2 >= 10) {
+		cpucard2 = 10;
+	}
+
+	player = playercard1 + playercard2;
+	cpu = cpucard1 + cpucard2;
+	cout << "您的牌总和为" << player << endl;
+	cout << "[" << playercard1 << "]";
+	cout << "[" << playercard2 << "]";
+	cout << endl;
+	cout << "CPU的牌为:" << endl;
+	cout << "[" << cpucard1 << "]";
+	cout << "[" << cpucard2 << "]" << endl;
+	cout << "CPU的牌总和为" << cpu << endl;
+}
 
 void deal(int &player, int &cpu, int &playerturns, int &cputurns) {
 	int playercard1, playercard2, cpucard1, cpucard2;
@@ -174,11 +317,11 @@ void deal(int &player, int &cpu, int &playerturns, int &cputurns) {
 
 	playercard1 = random(13, 1);
 	wait(250);
-	playercard2 = random(13, 1);
+	playercard2 = random(10, 1);
 	wait(150);
 	cpucard1 = random(13, 1);
 	wait(350);
-	cpucard2 = random(13, 1);
+	cpucard2 = random(10, 1);
 	//实现伪随机数的random函数保证单次调用的差异性
 	if (playercard1 >= 10) {
 		playercard1 = 10;
@@ -305,7 +448,7 @@ void replay(char &ans) {
 	cin >> ans;
 }
 
-void print(int wins, int lose, int draw, int money) {
+void print(int wins, int lose, int draw, int money, int default_money) {
 	string name;
 	cout << "胜场 :" << wins << endl;
 	cout << "败场 :" << lose << endl;
@@ -315,6 +458,7 @@ void print(int wins, int lose, int draw, int money) {
 	cout << "请输入您的id";
 	cin >> name;
 	cout << name << " 的战绩为" << wins << "-" << draw << "-" << lose << " " << "总筹码为:" << money << endl;
+	cout << "相比于初始筹码数目，您的正负差为 $	" << money - default_money << endl;
 }
 
 void wait(int milli) {
