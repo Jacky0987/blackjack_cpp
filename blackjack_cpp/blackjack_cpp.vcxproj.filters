@@ -16,17 +16,5 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="debug.cpp">
-      <Filter>资源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="test.cpp">
-      <Filter>资源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="backup.cpp">
-      <Filter>资源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="bkp\main ver2.cpp">
-      <Filter>资源文件</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>
