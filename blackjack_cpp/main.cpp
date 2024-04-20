@@ -17,15 +17,15 @@ using namespace std;
 void replay(char &ans);     //allows replay of game
 void setting(int chips, int &money);	//jump into settings menu.
 //游戏主要内容操作函数设定
-void hit(int &total, int &flag_legal, int &playerturns);      //take another card
-int cpu_hit(int &total, int &cputurns);
-void deal(int& player, int& cpu, int& playerturns, int& cputurns, float &player_score, float & cpu_score); //deals hand
-void admin_deal(int &player, int &cpu, int &playerturns, int &cputurns, float& player_score, float& cpu_score); //deals hand for admin mode
+void hit(float &total, int &flag_legal, int &playerturns);      //take another card
+int cpu_hit(float &total, int& cputurns);
+void deal(float &player, float& cpu, int& playerturns, int& cputurns, float& player_score, float& cpu_score); //deals hand
+void admin_deal(float &player, float& cpu, int& playerturns, int& cputurns, float& player_score, float& cpu_score); //deals hand for admin mode
 void BET(int &bet, int &money); //takes bet
 //游戏判断与打印函数设定
 int judging21(int a);
 void print(int wins, int lose, int draw, int money , int default_money); //prints final score
-void results(int player, int cpu, int bet, int &money, int &draw, int &win, int &lose); //finds winner
+void results(float player, float cpu, int bet, int &money, int &draw, int &win, int &lose); //finds winner
 //游戏数学与计算机机制函数声明
 int random(long hi, long lo); //random function using time stamp.
 void wait(int milli);
@@ -33,12 +33,15 @@ void pause();
 void game_rules();
 void game_author();
 
+
+//全局变量声明
+int win = 0, lose = 0, draw = 0, playerturns = 0, cputurns = 0, money = 100, default_money = 100, bet;
+float player = 0, cpu = 0;
+float player_score = 0, cpu_score = 0;
+int flag_legal = 1, flag = 0, admin_mode = 0;
+
+
 /*
-未完成任务列表：
-
-1.要牌后的赔率multiplier的设定。
-	暂未实现，需要更新筹码溢出的判断与加减方式。
-
 已完成任务列表:
 
 1.主程序的实现、改写与主程序封装。
@@ -52,7 +55,7 @@ void game_author();
 7.规则阐述与作者声明函数的实现。
 8.大于10的点数改为0.5判断。
 	全程序关于player和cpu的浮点属性修改。
-
+9.要牌后可以单独增加筹码。
 
 已知BUG列表：
 
@@ -68,12 +71,8 @@ void game_author();
 */
 
 
-int main() {
 
-	//Initializing...
-	int player = 0, cpu = 0, win = 0, lose = 0, draw = 0, playerturns = 0, cputurns = 0, money = 100 ,default_money = 100, bet;
-	float player_score = 0, cpu_score = 0;
-	int flag_legal = 1, flag = 0, admin_mode = 0;
+int main() {
 
 	char ans;
 
@@ -264,7 +263,7 @@ void BET(int &bet, int &money) {
 	}
 }
 
-void admin_deal(int& player, int& cpu, int& playerturns, int& cputurns, float& player_score, float& cpu_score) {
+void admin_deal(float& player, float& cpu, int& playerturns, int& cputurns, float& player_score, float& cpu_score) {
 	float playercard1, playercard2, cpucard1, cpucard2;
 	cout << "轻触回车键开始发牌！" << endl;
 	pause();
@@ -308,7 +307,7 @@ void admin_deal(int& player, int& cpu, int& playerturns, int& cputurns, float& p
 	cout << "CPU的牌总和为" << cpu << endl;
 }
 
-void deal(int &player, int &cpu, int &playerturns, int &cputurns, float& player_score, float& cpu_score) {
+void deal(float &player, float &cpu, int &playerturns, int &cputurns, float& player_score, float& cpu_score) {
 	float playercard1, playercard2, cpucard1, cpucard2;
 	cout << "轻触回车键开始发牌！" << endl;
 	pause();
@@ -352,7 +351,7 @@ void deal(int &player, int &cpu, int &playerturns, int &cputurns, float& player_
 	cout << "[*]" << "[" << cpucard1 << "]" << endl;
 }
 
-int cpu_hit(int &total, int &cputurns) {
+int cpu_hit(float &total, int &cputurns) {
 	float card;
 	card = random(13, 1);
 
@@ -380,9 +379,23 @@ int judging21(int a) {
 	}
 }
 
-void hit(int &total, int &flag_legal, int &playerturns) {
+void hit(float &total, int &flag_legal, int &playerturns) {
 	int card;
 	card = random(13, 1);
+
+	if (playerturns > 2) {
+		int additionalBet;
+		cout << "您已经追加要牌 " << (playerturns - 2) << " 次，是否要追加下注？(输入追加的金额或 0 表示不追加): ";
+		cin >> additionalBet;
+
+		if (additionalBet > 0 && additionalBet <= money) {
+			bet += additionalBet;
+			money -= additionalBet;
+		}
+		else if (additionalBet > money) {
+			cout << "追加下注金额超过您的筹码，请重新输入。" << endl;
+		}
+	}
 
 	if (card >= 10) {
 		card = 10;
@@ -406,7 +419,7 @@ void hit(int &total, int &flag_legal, int &playerturns) {
 
 }
 
-void results(int player, int cpu, int bet, int &money, int &draw, int &win, int &lose) {
+void results(float player, float cpu, int bet, int& money, int& draw, int& win, int& lose) {
 
 	if (cpu == player) {
 		cout << "您和CPU打平了！" << endl;
