@@ -1,8 +1,3 @@
-//SuperJacky6 @ ByteDance Tiktok Algorithm Department
-//Under GNU-v3 License Redesigned and refined.
-
-//Contact : adding2003@gmail.com
-
 #include <iostream>
 #include <stdlib.h>
 #include <algorithm>
@@ -11,7 +6,6 @@
 #include <string>
 
 using namespace std;
-
 
 //游戏内容设定函数声明
 void replay(char &ans);     
