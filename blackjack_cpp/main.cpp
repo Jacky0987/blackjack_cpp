@@ -1,8 +1,3 @@
-//SuperJacky6 @ ByteDance Tiktok Algorithm Department
-//Under GNU-v3 License Redesigned and refined.
-
-//Contact : adding2003@gmail.com
-
 #include <iostream>
 #include <stdlib.h>
 #include <algorithm>
@@ -12,73 +7,36 @@
 
 using namespace std;
 
-
 //游戏内容设定函数声明
-void replay(char &ans);     //allows replay of game
-void setting(int chips, int &money);	//jump into settings menu.
+void replay(char &ans);     
+void setting(int chips, int &money);	
 //游戏主要内容操作函数设定
-void hit(float &total, int &flag_legal, int &playerturns);      //take another card
+void hit(float &total, int &flag_legal, int &playerturns);    
 int cpu_hit(float &total, int& cputurns);
-void deal(float &player, float& cpu, int& playerturns, int& cputurns, float& player_score, float& cpu_score); //deals hand
-void admin_deal(float &player, float& cpu, int& playerturns, int& cputurns, float& player_score, float& cpu_score); //deals hand for admin mode
+void deal(float &player, float& cpu, int& playerturns, int& cputurns, float& player_score, float& cpu_score); 
+void admin_deal(float &player, float& cpu, int& playerturns, int& cputurns, float& player_score, float& cpu_score);
 void BET(int &bet, int &money); //takes bet
 //游戏判断与打印函数设定
 int judging21(int a);
-void print(int wins, int lose, int draw, int money , int default_money); //prints final score
-void results(float player, float cpu, int bet, int &money, int &draw, int &win, int &lose); //finds winner
+void print(int wins, int lose, int draw, int money , int default_money);
+void results(float player, float cpu, int bet, int &money, int &draw, int &win, int &lose);
 //游戏数学与计算机机制函数声明
-int random(long hi, long lo); //random function using time stamp.
+int random(long hi, long lo);
 void wait(int milli);
 void pause();
 void game_rules();
 void game_author();
-
-
 //全局变量声明
 int win = 0, lose = 0, draw = 0, playerturns = 0, cputurns = 0, money = 100, default_money = 100, bet;
 float player = 0, cpu = 0;
 float player_score = 0, cpu_score = 0;
 int flag_legal = 1, flag = 0, admin_mode = 0;
-
-
-/*
-已完成任务列表:
-
-1.主程序的实现、改写与主程序封装。
-2.13张扑克牌大于10的判定为10（若需要改成0.5则有浮点数要求）
-3.CPU方永远不会爆庄。(2.3.3-3)
-4.筹码的数量判断设定与报错。
-5.中文本地化21点程序内容。
-6.H键超级管理员设定。
-	菜单问题选择拆分程序。已完成。
-	游戏内容问题仿照cpu_hit与hit函数分别设定。已完成。
-7.规则阐述与作者声明函数的实现。
-8.大于10的点数改为0.5判断。
-	全程序关于player和cpu的浮点属性修改。
-9.要牌后可以单独增加筹码。
-
-已知BUG列表：
-
-1.程序内对于非法操作的判定仍是使用玩家手数，flag_legal未彻底使用。
-2.手牌有极大可能相同。
-	原因：random函数在传入时间戳的时候同时执行则获得同样数字。
-	部分解决方案：更改13/10，用sleep延迟时间戳传入。
-3.筹码溢出问题。
-	已部分解决。
-4.输入内容的检索问题。
-5.CPU在已经超数的情况下会继续获取牌的bug
-	已解决，函数改int增加返回与多层判定。
-*/
-
-
+string password = "1";
+string input_pwd = "";
 
 int main() {
 
 	char ans;
-
-	string password = "1";
-	string input_pwd = "";
-
 	int choice;
 
 		do {
