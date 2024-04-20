@@ -19,8 +19,8 @@ void setting(int chips, int &money);	//jump into settings menu.
 //游戏主要内容操作函数设定
 void hit(int &total, int &flag_legal, int &playerturns);      //take another card
 int cpu_hit(int &total, int &cputurns);
-void deal(int &player, int &cpu, int &playerturns, int &cputurns); //deals hand
-void admin_deal(int &player, int &cpu, int &playerturns, int &cputurns); //deals hand for admin mode
+void deal(int& player, int& cpu, int& playerturns, int& cputurns, float &player_score, float & cpu_score); //deals hand
+void admin_deal(int &player, int &cpu, int &playerturns, int &cputurns, float& player_score, float& cpu_score); //deals hand for admin mode
 void BET(int &bet, int &money); //takes bet
 //游戏判断与打印函数设定
 int judging21(int a);
@@ -34,14 +34,10 @@ void game_rules();
 void game_author();
 
 /*
-未完成任务列表：ssd
+未完成任务列表：
 
-1.大于10的点数改为0.5判断。
-	全程序关于player和cpu的浮点属性修改。
-2.要牌后的赔率multiplier的设定。
+1.要牌后的赔率multiplier的设定。
 	暂未实现，需要更新筹码溢出的判断与加减方式。
-
-
 
 已完成任务列表:
 
@@ -54,6 +50,8 @@ void game_author();
 	菜单问题选择拆分程序。已完成。
 	游戏内容问题仿照cpu_hit与hit函数分别设定。已完成。
 7.规则阐述与作者声明函数的实现。
+8.大于10的点数改为0.5判断。
+	全程序关于player和cpu的浮点属性修改。
 
 
 已知BUG列表：
@@ -74,8 +72,11 @@ int main() {
 
 	//Initializing...
 	int player = 0, cpu = 0, win = 0, lose = 0, draw = 0, playerturns = 0, cputurns = 0, money = 100 ,default_money = 100, bet;
+	float player_score = 0, cpu_score = 0;
 	int flag_legal = 1, flag = 0, admin_mode = 0;
+
 	char ans;
+
 	string password = "1";
 	string input_pwd = "";
 
@@ -116,9 +117,9 @@ int main() {
 					BET(bet, money);
 
 					if (admin_mode == 0) {
-						deal(player, cpu, playerturns, cputurns);
+						deal(player, cpu, playerturns, cputurns, player_score, cpu_score);
 					} else {
-						admin_deal(player, cpu, playerturns, cputurns);
+						admin_deal(player, cpu, playerturns, cputurns, player_score, cpu_score);
 					}
 
 					do {
@@ -263,8 +264,8 @@ void BET(int &bet, int &money) {
 	}
 }
 
-void admin_deal(int& player, int& cpu, int& playerturns, int& cputurns) {
-	int playercard1, playercard2, cpucard1, cpucard2;
+void admin_deal(int& player, int& cpu, int& playerturns, int& cputurns, float& player_score, float& cpu_score) {
+	float playercard1, playercard2, cpucard1, cpucard2;
 	cout << "轻触回车键开始发牌！" << endl;
 	pause();
 
@@ -272,28 +273,28 @@ void admin_deal(int& player, int& cpu, int& playerturns, int& cputurns) {
 	cputurns = 2;
 
 	playercard1 = random(13, 1);
-	wait(250);
-	playercard2 = random(10, 1);
-	wait(150);
+	wait(1250);
+
+	playercard2 = random(13, 1);
+	wait(1250);
+
 	cpucard1 = random(13, 1);
-	wait(350);
-	cpucard2 = random(10, 1);
+	wait(1250);
+
+	cpucard2 = random(13, 1);
 	//实现伪随机数的random函数保证单次调用的差异性
-	if (playercard1 >= 10) {
-		playercard1 = 10;
+	if (playercard1 > 10) {
+		    playercard1 = 0.5;
 	}
-
-	if (playercard2 >= 10) {
-		playercard2 = 10;
-	}
-
-	if (cpucard1 >= 10) {
-		cpucard1 = 10;
-	}
-
-	if (cpucard2 >= 10) {
-		cpucard2 = 10;
-	}
+	if (playercard2 > 10) {
+        playercard2 = 0.5;
+    }
+    if (cpucard1 > 10) {
+        cpucard1 = 0.5;
+    }
+    if (cpucard2 > 10) {
+        cpucard2 = 0.5;
+    }
 
 	player = playercard1 + playercard2;
 	cpu = cpucard1 + cpucard2;
@@ -307,8 +308,8 @@ void admin_deal(int& player, int& cpu, int& playerturns, int& cputurns) {
 	cout << "CPU的牌总和为" << cpu << endl;
 }
 
-void deal(int &player, int &cpu, int &playerturns, int &cputurns) {
-	int playercard1, playercard2, cpucard1, cpucard2;
+void deal(int &player, int &cpu, int &playerturns, int &cputurns, float& player_score, float& cpu_score) {
+	float playercard1, playercard2, cpucard1, cpucard2;
 	cout << "轻触回车键开始发牌！" << endl;
 	pause();
 
@@ -316,28 +317,29 @@ void deal(int &player, int &cpu, int &playerturns, int &cputurns) {
 	cputurns = 2;
 
 	playercard1 = random(13, 1);
-	wait(250);
-	playercard2 = random(10, 1);
-	wait(150);
+	wait(1250);
+
+	playercard2 = random(13, 1);
+	wait(1250);
+
 	cpucard1 = random(13, 1);
-	wait(350);
-	cpucard2 = random(10, 1);
+	wait(1250);
+
+	cpucard2 = random(13, 1);
 	//实现伪随机数的random函数保证单次调用的差异性
-	if (playercard1 >= 10) {
-		playercard1 = 10;
+	if (playercard1 > 10) {
+		playercard1 = 0.5;
+	}
+	if (playercard2 > 10) {
+		playercard2 = 0.5;
+	}
+	if (cpucard1 > 10) {
+		cpucard1 = 0.5;
+	}
+	if (cpucard2 > 10) {
+		cpucard2 = 0.5;
 	}
 
-	if (playercard2 >= 10) {
-		playercard2 = 10;
-	}
-
-	if (cpucard1 >= 10) {
-		cpucard1 = 10;
-	}
-
-	if (cpucard2 >= 10) {
-		cpucard2 = 10;
-	}
 
 	player = playercard1 + playercard2;
 	cpu = cpucard1 + cpucard2;
@@ -351,11 +353,11 @@ void deal(int &player, int &cpu, int &playerturns, int &cputurns) {
 }
 
 int cpu_hit(int &total, int &cputurns) {
-	int card;
+	float card;
 	card = random(13, 1);
 
 	if (card >= 10) {
-		card = 10;
+		card = 0.5;
 	}
 	//修复了CPU在已经超数的情况下会继续获取牌的bug。
 	if ( total + card > 21 ) {
